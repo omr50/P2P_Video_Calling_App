@@ -45,7 +45,8 @@ ipcMain.handle("login", async (event, credentials) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials)
   });
-  return res.json();
+  console.log("status", res.status);
+  console.log("body", res.body);
 });
 export {
   MAIN_DIST,

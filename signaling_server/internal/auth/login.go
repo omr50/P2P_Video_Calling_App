@@ -10,7 +10,7 @@ import (
 )
 
 type User struct {
-	Username string
+	Email    string
 	Password string
 }
 
@@ -50,8 +50,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var u User
 	json.NewDecoder(r.Body).Decode(&u)
-	if u.Username == "user" && u.Password == "password" {
-		tokenString, err := createToken(u.Username)
+	fmt.Println("jsondata: ", u)
+	if u.Email == "user@gmail.com" && u.Password == "password" {
+		tokenString, err := createToken(u.Email)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +60,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, tokenString)
+		json.NewEncoder(w).Encode(map[string]string{
+			"token": tokenString,
+		})
+		fmt.Println("successfully sending token")
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)

@@ -74,6 +74,7 @@ ipcMain.handle('login', async (event: any, credentials: any) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
   })
+  console.log("status", res.status)
+  console.log("body", res.body)
 
-  return res.json();
 })
