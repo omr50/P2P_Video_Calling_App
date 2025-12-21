@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+var UserJWT string
+
 type User struct {
 	Email    string
 	Password string
@@ -43,5 +45,10 @@ func CredentialsHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(resp.Body).Decode(&token)
 
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": token.Token,
+	})
+
 	fmt.Println("Token: ", token)
+	UserJWT = token.Token
 }

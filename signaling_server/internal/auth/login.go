@@ -51,7 +51,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var u User
 	json.NewDecoder(r.Body).Decode(&u)
 	fmt.Println("jsondata: ", u)
-	if u.Email == "user@gmail.com" && u.Password == "password" {
+	if u.Email == "a@a" && u.Password == "a" {
 		tokenString, err := createToken(u.Email)
 
 		if err != nil {

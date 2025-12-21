@@ -1,20 +1,32 @@
 import { useState } from "react"
 import Button from "../components/Button"
 import Input from "../components/Input"
+import {useAuth} from "../context/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [wrongCredentials, setWrongCredentials] = useState(false)
+  const {token, setToken} = useAuth()
+  const navigate = useNavigate()
 
   const onSubmit = async (e) => {
     e.preventDefault()
-
+    console.log("test?")
     const result = await window.api.login({
       email,
       password,
     })
 
-    console.log(result)
+    console.log("http result:", result)
+    if (result.token === ""){
+      setWrongCredentials(true);
+      setTimeout(()=> {setWrongCredentials(false);}, 3000);
+    } else {
+      setToken(result.token)
+      navigate("/")
+    }
   }
   return (
     <div className="max-h-screen flex items-center justify-center bg-zinc-900">
@@ -27,8 +39,9 @@ export default function Login() {
         </p>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <Input label="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} />
-          <Input label="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)}/>
+          {wrongCredentials ? <div className="bg-rose-400 text-white rounded text-sm py-1">Incorrect Credentials!</div> : ""}
+          <Input label="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} error={wrongCredentials} />
+          <Input label="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} error={wrongCredentials}/>
 
           <Button type="submit">
             Sign In

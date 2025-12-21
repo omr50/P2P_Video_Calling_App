@@ -75,6 +75,8 @@ ipcMain.handle('login', async (event: any, credentials: any) => {
     body: JSON.stringify(credentials),
   })
   console.log("status", res.status)
-  console.log("body", res.body)
-
+  // console.log("body", res.body)
+  const data = await res.json()
+  console.log("data: ",data)
+  return data
 })
