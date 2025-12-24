@@ -7,12 +7,9 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	Api "github.com/omr50/P2P_Video_Calling_App/internal/api"
+	"golang.org/x/crypto/bcrypt"
 )
-
-type User struct {
-	Email    string
-	Password string
-}
 
 var secretKey = []byte("secret-key")
 
@@ -45,13 +42,85 @@ func verifyToken(tokenString string) error {
 	return nil
 }
 
+func hashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+func validPassword(hashedPassword string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return false
+	}
+	return true
+
+}
+
+func fetchAndValidatePassword(email string, password string) bool {
+	storedPaswordHashed, err := Api.GetPassword(email)
+
+	if err != nil {
+		return false
+	}
+
+	return validPassword(storedPaswordHashed, password)
+
+}
+
+func SignupHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("signup endpoint hit")
+	w.Header().Set("Content-Type", "application/json")
+
+	var user Api.UserSignup
+	json.NewDecoder(r.Body).Decode(&user)
+
+	hashedPassword, err := hashPassword(user.Password)
+	user.Password = hashedPassword
+
+	if err != nil {
+		// 400 bad request
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	unusedEmail := Api.UnusedEmail(user.Email)
+
+	if !unusedEmail {
+		// 409 conflict
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
+	_, err = Api.StoreUser(user)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 200 succeeded
+	w.WriteHeader(http.StatusOK)
+
+}
+
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var u User
+	var u Api.User
 	json.NewDecoder(r.Body).Decode(&u)
 	fmt.Println("jsondata: ", u)
-	if u.Email == "a@a" && u.Password == "a" {
+
+	// user, err := Api.FetchUser(u.Email)
+
+	if fetchAndValidatePassword(u.Email, u.Password) {
 		tokenString, err := createToken(u.Email)
 
 		if err != nil {
