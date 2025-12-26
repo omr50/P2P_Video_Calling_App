@@ -1,4 +1,4 @@
-package Websocket
+package sock
 
 import (
 	"encoding/json"
@@ -24,6 +24,12 @@ type Message struct {
 	Payload json.RawMessage
 }
 
+func handleCallOffer(conn *websocket.Conn, msg Message) {
+	// server finds other socket, sends call request to it
+	fmt.Println("got call offer message:", msg)
+
+}
+
 func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := Upgrader.Upgrade(w, r, nil)
 
@@ -47,8 +53,9 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("message: ", msg)
 
 		switch msg.Type {
-		case "offer":
-			// handleOffer(msg)
+
+		case "call_offer":
+			handleCallOffer(conn, msg)
 		case "answer":
 			// handleAnswer(msg)
 		case "ice":

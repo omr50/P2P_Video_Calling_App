@@ -31,9 +31,9 @@ export default function Home() {
             token ? 
             <>
               <div className="m-4"></div>
-              <Button onClick={()=> {navigate("/login")}}>📞 Join Call </Button>
+              <Button onClick={()=> {navigate("/login")}} bColor="green">🌐 Start a Call </Button>
               <div className="m-4"></div>
-              <Button>👥 Add Friend</Button>
+              <Button bColor="violet">🙋🏻‍♂️ Add Friend</Button>
             </>
               : 
             <>
@@ -70,7 +70,7 @@ export default function Home() {
               <div className="m-4"></div>
               <Button onClick={()=> {navigate("/login")}} bColor="green">Log In</Button>
               <div className="m-4"></div>
-              <Button>Sign Up</Button>
+              <Button onClick={()=> {navigate("/signup")}}>Sign Up</Button>
             </>
 
             

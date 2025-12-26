@@ -1,0 +1,28 @@
+Implement:
+- Websocket connection between media server & signaling server
+    - non blocking socket connection on both client/server 
+    - how to set different message types 
+    - depending on type of message (not the websock library types) use different struct to unmarshal json
+        - this is good for decoding a message without a known message type (using json.RawMessage)
+        - Message types 
+            - friend request(? not sure if i should do this yet, or just call anyone)
+            - call request  
+            - end call 
+            - stun exchange 
+            - key exchange
+- Stun queries and send it through the web socket server 
+- Create keys on both client/server 
+- Search for friends/people to call
+    - see who is online (if they are in your friend group)
+- Signup/Login
+    - implement bare minimum signup, login, jwt, sql database storage 
+    - implement further validation for correct email, email verification to activate account (& more sql fields)
+    - Some sort of persistent storage of JWT so the user doesn't have to re-log in?
+    - secret keys for jwt and other secrets should be moved to an env file or other secret, non shared location
+
+- Redis
+    - implement redis for holding the websocket connections that are activate
+    - easy way for the server to fetch clients when requests come in
+    - also when calls close they can inform the other party in call that its over if the other crashes
+      and doesn't send the end call message 
+Complete:

@@ -102,6 +102,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = Api.StoreUser(user)
 
 	if err != nil {
+		// 400 bad request
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -50,6 +50,25 @@ ipcMain.handle("login", async (event, credentials) => {
   console.log("data: ", data);
   return data;
 });
+ipcMain.handle("signup", async (event, credentials) => {
+  console.log("signup request: ", credentials);
+  try {
+    const res = await fetch("http://localhost:8090/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials)
+    });
+    return {
+      status: res.status
+    };
+  } catch (err) {
+    console.error("Signup error in main process:", err);
+    return {
+      status: 500,
+      error: err
+    };
+  }
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

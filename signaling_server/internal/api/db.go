@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/lib/pq"
 )
 
 var Db *sql.DB
@@ -24,22 +24,28 @@ type UserSignup struct {
 func InitDB() {
 
 	fmt.Println("Test 1")
-	db, err := sql.Open("sqlite", "./auth.db")
+
+	connStr := "postgres://appuser:apppassword@localhost:5432/appdb?sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Println("DB Initialization failed!")
 		os.Exit(1)
 	}
 
-	fmt.Println("Test 1")
+	fmt.Println("Connected to PostgreSQL")
+
+	fmt.Println("Test 2")
 	_, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            username TEXT NOT NULL,
+            id SERIAL PRIMARY KEY,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            username VARCHAR(255) NOT NULL,
             password_hash TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `)
+
+	fmt.Println("Test 3")
 	if err != nil {
 		os.Exit(1)
 	}
@@ -49,7 +55,7 @@ func InitDB() {
 }
 
 func GetPassword(email string) (string, error) {
-	query := "SELECT password_hash FROM users WHERE email = ?"
+	query := "SELECT password_hash FROM users WHERE email = $1"
 
 	var hashedPassword string
 
@@ -63,7 +69,7 @@ func GetPassword(email string) (string, error) {
 }
 
 func UnusedEmail(email string) bool {
-	query := "SELECT email FROM users WHERE email = ?"
+	query := "SELECT email FROM users WHERE email = $1"
 	var returnedEmail string
 	err := Db.QueryRow(query, email).Scan(&returnedEmail)
 
@@ -75,14 +81,10 @@ func UnusedEmail(email string) bool {
 }
 
 func StoreUser(user UserSignup) (int64, error) {
-	query := "INSERT into users (email, username, password_hash) VALUES ($1, $2, $3)"
-	result, err := Db.Exec(query, user.Email, user.Username, user.Password)
+	query := "INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id"
 
-	if err != nil {
-		return 0, fmt.Errorf("Add User: %v", err)
-	}
-
-	id, err := result.LastInsertId()
+	var id int64
+	err := Db.QueryRow(query, user.Email, user.Username, user.Password).Scan(&id)
 
 	if err != nil {
 		return 0, fmt.Errorf("Add User: %v", err)
@@ -92,7 +94,7 @@ func StoreUser(user UserSignup) (int64, error) {
 }
 
 func FetchUser(email string) (UserSignup, error) {
-	query := "SELECT (email, username, password_hash) FROM users WHERE email = ?"
+	query := "SELECT email, username, password_hash FROM users WHERE email = $1"
 	var user UserSignup
 
 	err := Db.QueryRow(query, email).Scan(&user.Email, &user.Username, &user.Password)
