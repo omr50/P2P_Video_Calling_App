@@ -3,8 +3,19 @@ package Api
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
+)
+
+type MessageType string
+
+const (
+	MsgCreateSock   MessageType = "create_socket"
+	MsgCallRequest  MessageType = "call_request"
+	MsgCallAccepted MessageType = "call_accepted"
+	MsgCallDeclined MessageType = "call_declined"
+	MsgKeyExchange  MessageType = "key_exchange"
 )
 
 type Message struct {
@@ -41,7 +52,15 @@ func WebsockClient() {
 	if err != nil {
 		log.Fatal("Marshal error:", err)
 	}
-	err = conn.WriteMessage(websocket.TextMessage, data)
+
+	go func() {
+		ticker := time.NewTicker(3 * time.Second)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			err = conn.WriteMessage(websocket.TextMessage, data)
+		}
+	}()
 	if err != nil {
 		log.Fatal("write error:", err)
 	}

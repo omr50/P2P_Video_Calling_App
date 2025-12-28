@@ -27,6 +27,11 @@ type Message struct {
 func handleCallOffer(conn *websocket.Conn, msg Message) {
 	// server finds other socket, sends call request to it
 	fmt.Println("got call offer message:", msg)
+	data, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println("error encoding message")
+	}
+	conn.WriteMessage(websocket.TextMessage, data)
 
 }
 
