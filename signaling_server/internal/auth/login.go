@@ -26,7 +26,7 @@ func createToken(username string) (string, error) {
 	return tokenString, nil
 }
 
-func verifyToken(tokenString string) error {
+func VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
@@ -153,7 +153,7 @@ func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("token:", tokenString)
 
-	err := verifyToken(tokenString)
+	err := VerifyToken(tokenString)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Invalid token")

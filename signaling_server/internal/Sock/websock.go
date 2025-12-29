@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
+	"github.com/omr50/P2P_Video_Calling_App/internal/auth"
 )
 
 var Upgrader = websocket.Upgrader{
@@ -36,12 +38,24 @@ func handleCallOffer(conn *websocket.Conn, msg Message) {
 }
 
 func WebsockHandler(w http.ResponseWriter, r *http.Request) {
+	authValue := r.Header.Get("Authorization")
+	token := strings.TrimPrefix(authValue, "Bearer ")
+
+	err := auth.VerifyToken(token)
+
+	if err != nil {
+		fmt.Println("Invalid token")
+		return
+	}
+
 	conn, err := Upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
 		log.Printf("Failed to upgrade connection: %v\n", err)
 		return
 	}
+
+	// redis.NewClient(&)
 
 	defer conn.Close()
 

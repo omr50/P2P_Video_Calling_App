@@ -5,14 +5,15 @@ import (
 	"net/http"
 
 	sock "github.com/omr50/P2P_Video_Calling_App/internal/Sock"
-	Api "github.com/omr50/P2P_Video_Calling_App/internal/api"
+	"github.com/omr50/P2P_Video_Calling_App/internal/api"
 
 	"github.com/omr50/P2P_Video_Calling_App/internal/auth"
 )
 
 func main() {
 	fmt.Println("Starting Server!")
-	Api.InitDB()
+	api.InitDB()
+	api.InitRedisClient()
 
 	http.HandleFunc("/login", auth.LoginHandler)
 	http.HandleFunc("/signup", auth.SignupHandler)

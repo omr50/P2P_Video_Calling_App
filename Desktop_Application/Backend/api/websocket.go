@@ -3,12 +3,15 @@ package Api
 import (
 	"encoding/json"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 type MessageType string
+
+var GlobalClient *Client
 
 const (
 	MsgCreateSock   MessageType = "create_socket"
@@ -19,15 +22,33 @@ const (
 )
 
 type Message struct {
-	Type     string
-	userAuth string
-	To       string
-	Payload  json.RawMessage
+	Type    string
+	From    string
+	To      string
+	Payload json.RawMessage
+}
+
+func NewClient(serverURL string) (*Client, error) {
+
+	header := http.Header{}
+	header.Set("Authorization", "Bearer "+UserJWT)
+
+	conn, _, err := websocket.DefaultDialer.Dial(serverURL, header)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		conn: conn,
+	}, nil
 }
 
 func WebsockClient() {
 
-	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8090/ws", nil)
+	// conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8090/ws", nil)
+	var err error
+	GlobalClient, err = NewClient("ws://localhost:8090/ws")
 	if err != nil {
 		log.Fatal("dial error:", err)
 	}
@@ -39,13 +60,13 @@ func WebsockClient() {
 	payloadBytes, _ := json.Marshal(payload)
 
 	msg := Message{
-		Type:     "call_offer",
-		userAuth: "fake-jwt-faewfakjw",
-		To:       "a@b",
-		Payload:  payloadBytes,
+		Type:    "call_offer",
+		From:    GlobalClient.email,
+		To:      "a@b",
+		Payload: payloadBytes,
 	}
 
-	defer conn.Close()
+	// defer GlobalClient.conn.Close()
 
 	data, err := json.Marshal(msg)
 
@@ -58,7 +79,7 @@ func WebsockClient() {
 		defer ticker.Stop()
 
 		for range ticker.C {
-			err = conn.WriteMessage(websocket.TextMessage, data)
+			err = GlobalClient.conn.WriteMessage(websocket.TextMessage, data)
 		}
 	}()
 	if err != nil {
@@ -67,7 +88,7 @@ func WebsockClient() {
 
 	// read incoming msgs
 	for {
-		msgType, msg, err := conn.ReadMessage()
+		msgType, msg, err := GlobalClient.conn.ReadMessage()
 		if err != nil {
 			log.Println("read errro:", err)
 			return

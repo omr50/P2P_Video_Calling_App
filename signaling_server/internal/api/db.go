@@ -1,4 +1,4 @@
-package Api
+package api
 
 import (
 	"database/sql"
@@ -22,7 +22,6 @@ type UserSignup struct {
 }
 
 func InitDB() {
-
 	fmt.Println("Test 1")
 
 	connStr := "postgres://appuser:apppassword@localhost:5432/appdb?sslmode=disable"
