@@ -1,15 +1,30 @@
 package sock
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/omr50/P2P_Video_Calling_App/internal/api"
 	"github.com/omr50/P2P_Video_Calling_App/internal/auth"
 )
+
+var (
+	connections = make(map[string]*websocket.Conn)
+	connMu      sync.RWMutex
+)
+
+func addConnection(email string, conn *websocket.Conn) {
+	connMu.Lock()
+	connections[email] = conn
+	connMu.Unlock()
+}
 
 var Upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -20,10 +35,25 @@ var Upgrader = websocket.Upgrader{
 }
 
 type Message struct {
-	Type    string
-	From    string
-	To      string
-	Payload json.RawMessage
+	Type           string
+	SenderEmail    string
+	RecipientEmail string
+	Payload        json.RawMessage
+}
+
+func clientPing(conn *websocket.Conn) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		if err := conn.WriteControl(
+			websocket.PingMessage,
+			nil,
+			time.Now().Add(5*time.Second),
+		); err != nil {
+			return
+		}
+	}
 }
 
 func handleCallOffer(conn *websocket.Conn, msg Message) {
@@ -41,7 +71,7 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 	authValue := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authValue, "Bearer ")
 
-	err := auth.VerifyToken(token)
+	claims, err := auth.VerifyToken(token)
 
 	if err != nil {
 		fmt.Println("Invalid token")
@@ -55,14 +85,43 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// redis.NewClient(&)
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
+	ctx := context.Background()
+
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		api.RedisClient.Expire(ctx, claims.Email, 360*time.Second)
+		return nil
+	})
+
+	addConnection(claims.Email, conn)
+
+	api.RedisClient.HSet(ctx, claims.Email, map[string]interface{}{
+		"server_id": "server-1",
+		"last-seen": time.Now().Unix(),
+	})
+	err = api.MarkUserOnline(ctx, api.RedisClient, claims.Email)
+	if err != nil {
+		fmt.Println("Error marking user online in redis")
+		return
+	}
+
+	// api.RedisClient.Expire(ctx, claims.Email, 5*time.Minute)
+	err = api.SetClientExpiration(ctx, api.RedisClient, claims.Email, 360*time.Second)
+	if err != nil {
+		fmt.Println("Error setting client expiration in redis")
+		return
+	}
 	defer conn.Close()
+
+	go clientPing(conn)
 
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("Failed to upgrade connection: %v\n", err)
+			api.MarkUserOffline(ctx, api.RedisClient, claims.Email)
+			log.Printf("Websocket closed or read error: %v\n", err)
 			return
 		}
 		fmt.Println("Message type: ", messageType)

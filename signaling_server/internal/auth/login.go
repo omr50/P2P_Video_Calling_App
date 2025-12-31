@@ -13,10 +13,15 @@ import (
 
 var secretKey = []byte("secret-key")
 
-func createToken(username string) (string, error) {
+type Claims struct {
+	Email string
+	jwt.RegisteredClaims
+}
+
+func createToken(email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email": email,
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString(secretKey)
@@ -26,20 +31,21 @@ func createToken(username string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyToken(tokenString string) error {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifyToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !token.Valid {
-		return fmt.Errorf("invalid token")
+		return nil, fmt.Errorf("invalid token")
 	}
 
-	return nil
+	return claims, nil
 }
 
 func hashPassword(password string) (string, error) {
@@ -153,7 +159,7 @@ func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("token:", tokenString)
 
-	err := VerifyToken(tokenString)
+	_, err := VerifyToken(tokenString)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Invalid token")
