@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -19,6 +20,13 @@ type UserSignup struct {
 	Email    string
 	Username string
 	Password string
+}
+
+type UserSearchResult struct {
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
+	Online    bool      `json:"online"`
 }
 
 func InitDB() {
@@ -103,5 +111,40 @@ func FetchUser(email string) (UserSignup, error) {
 	}
 
 	return user, nil
+
+}
+
+func FindByPartialEmail(email string) ([]UserSearchResult, error) {
+	query := "SELECT email, username, created_at FROM users WHERE email ILIKE $1 LIMIT 20"
+
+	rows, err := Db.Query(query, "%"+email+"%")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var results []UserSearchResult
+
+	for rows.Next() {
+		var user UserSearchResult
+		err := rows.Scan(
+			&user.Email,
+			&user.Username,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		user.Online = false
+		results = append(results, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 
 }

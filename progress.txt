@@ -14,6 +14,10 @@ Implement:
 - Create keys on both client/server 
 - Search for friends/people to call
     - see who is online (if they are in your friend group)
+    - this info is in redis, but not sure how to search it, especially partial searches
+    - probably best to do a db search for the users email, then basically query redis for each one 
+    - can set a limit of 20 users from the DB, if user wants more they can go to next page, specify more 
+    
 - Signup/Login
     - implement bare minimum signup, login, jwt, sql database storage 
     - implement further validation for correct email, email verification to activate account (& more sql fields)

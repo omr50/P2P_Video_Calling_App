@@ -8,7 +8,6 @@ import (
 
 func main() {
 	fmt.Println("testing backend!")
-	go Api.WebsockClient()
 
 	http.HandleFunc("/credentials", Api.CredentialsHandler)
 

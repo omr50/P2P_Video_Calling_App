@@ -147,13 +147,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func isAuthenticated(r *http.Request) bool {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing authorization header")
-		return
+		return false
 	}
 	tokenString = tokenString[len("Bearer "):]
 
@@ -161,8 +158,19 @@ func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err := VerifyToken(tokenString)
 	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	isAuth := isAuthenticated(r)
+
+	if !isAuth {
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Invalid token")
+		fmt.Fprint(w, "Blank or Invalid Token!")
 		return
 	}
 

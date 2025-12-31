@@ -46,13 +46,19 @@ func MarkUserOnline(ctx context.Context, rdb *redis.Client, email string) error 
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("Marked user online in redis")
 	return nil
 }
 
 func MarkUserOffline(ctx context.Context, rdb *redis.Client, email string) error {
 	key := "online:user:" + email
-	return rdb.Del(ctx, key).Err()
+	err := rdb.Del(ctx, key).Err()
+	if err != nil {
+		return err
+	}
+	fmt.Println("marked user offline", err)
+	return nil
+
 }
 
 func SetClientExpiration(ctx context.Context, rdb *redis.Client, email string, t time.Duration) error {

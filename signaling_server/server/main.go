@@ -18,6 +18,7 @@ func main() {
 	http.HandleFunc("/login", auth.LoginHandler)
 	http.HandleFunc("/signup", auth.SignupHandler)
 	http.HandleFunc("/protected", auth.ProtectedHandler)
+	http.HandleFunc("/user-search", auth.ProtectedHandler)
 	http.HandleFunc("/ws", sock.WebsockHandler)
 	http.ListenAndServe(":8090", nil)
 }

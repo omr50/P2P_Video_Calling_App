@@ -143,4 +143,6 @@ func CredentialsHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Token: ", token)
 	UserJWT = token.Token
+
+	go WebsockClient()
 }

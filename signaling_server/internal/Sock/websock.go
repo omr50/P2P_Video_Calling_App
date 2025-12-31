@@ -24,6 +24,14 @@ func addConnection(email string, conn *websocket.Conn) {
 	connMu.Lock()
 	connections[email] = conn
 	connMu.Unlock()
+	fmt.Println("added client connection to map")
+}
+
+func removeConnection(email string) {
+	connMu.Lock()
+	delete(connections, email)
+	connMu.Unlock()
+	fmt.Println("removed client connection from map")
 }
 
 var Upgrader = websocket.Upgrader{
@@ -121,6 +129,7 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			api.MarkUserOffline(ctx, api.RedisClient, claims.Email)
+			removeConnection(claims.Email)
 			log.Printf("Websocket closed or read error: %v\n", err)
 			return
 		}
