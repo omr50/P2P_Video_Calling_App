@@ -17,12 +17,16 @@ Implement:
     - this info is in redis, but not sure how to search it, especially partial searches
     - probably best to do a db search for the users email, then basically query redis for each one 
     - can set a limit of 20 users from the DB, if user wants more they can go to next page, specify more 
-    
+
 - Signup/Login
     - implement bare minimum signup, login, jwt, sql database storage 
     - implement further validation for correct email, email verification to activate account (& more sql fields)
     - Some sort of persistent storage of JWT so the user doesn't have to re-log in?
     - secret keys for jwt and other secrets should be moved to an env file or other secret, non shared location
+
+- Logout
+    - not only on frontend set the token to empty, but on the media server close the socket to the backend
+    - test to see if that removes the online user from redis 
 
 - Redis
     - implement redis for holding the websocket connections that are activate

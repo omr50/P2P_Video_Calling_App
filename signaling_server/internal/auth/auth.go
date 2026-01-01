@@ -84,16 +84,3 @@ func IsAuthenticated(r *http.Request) bool {
 
 	return true
 }
-
-func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	isAuth := IsAuthenticated(r)
-
-	if !isAuth {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Blank or Invalid Token!")
-		return
-	}
-
-	fmt.Fprint(w, "Welcome to the protected aread!")
-}

@@ -83,3 +83,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Invalid Credentials")
 	}
 }
+
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		isAuth := auth.IsAuthenticated(r)
+
+		if !isAuth {
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, "Blank or Invalid Token!")
+			return
+		}
+		fmt.Println("Middleware works! Accessing protected Area")
+		next.ServeHTTP(w, r)
+	})
+
+}
