@@ -2,10 +2,21 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"github.com/omr50/P2P_Video_Calling_App/internal/auth"
 )
 
 func EmailSearch(w http.ResponseWriter, r *http.Request) {
+	isAuth := auth.IsAuthenticated(r)
+
+	if !isAuth {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Blank or Invalid Token!")
+		return
+	}
+
 	partialEmail := r.URL.Query().Get("q")
 
 	if partialEmail == "" {
