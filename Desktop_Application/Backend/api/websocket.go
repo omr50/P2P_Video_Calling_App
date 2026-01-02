@@ -100,3 +100,18 @@ func WebsockClient() {
 	}
 
 }
+
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	err := GlobalClient.conn.WriteMessage(
+		websocket.CloseMessage,
+		websocket.FormatCloseMessage(websocket.CloseNormalClosure, "client exit"),
+	)
+
+	if err != nil {
+		log.Println("Write close error: ", err)
+	}
+	time.Sleep(100 * time.Millisecond)
+	GlobalClient.conn.Close()
+}

@@ -55,6 +55,9 @@ console.log("UserProfile token:", token)
               setToken("")
               setOpen(false)
               navigate("/")
+
+              const res = window.api.logout()
+
             }}
             className="
               w-full

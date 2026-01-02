@@ -10,6 +10,7 @@ func main() {
 	fmt.Println("testing backend!")
 
 	http.HandleFunc("/credentials", Api.CredentialsHandler)
+	http.HandleFunc("/logout", Api.LogoutHandler)
 
 	http.ListenAndServe(":5000", nil)
 

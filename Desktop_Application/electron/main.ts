@@ -106,3 +106,15 @@ ipcMain.handle('signup', async (event: any, credentials: any) => {
     }
   }
 })
+
+ipcMain.handle('logout', async (event: any) => {
+  const res = await fetch("http://localhost:5000/logout", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+  })
+  console.log("status", res.status)
+  // console.log("body", res.body)
+  const data = await res.json()
+  console.log("logout data: ", data)
+  return data
+})
