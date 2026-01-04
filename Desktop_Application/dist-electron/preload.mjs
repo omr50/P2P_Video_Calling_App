@@ -25,5 +25,5 @@ electron.contextBridge.exposeInMainWorld("api", {
   login: (credentials) => electron.ipcRenderer.invoke("login", credentials),
   signup: (credentials) => electron.ipcRenderer.invoke("signup", credentials),
   logout: () => electron.ipcRenderer.invoke("logout"),
-  search: () => electron.ipcRenderer.invoke("search")
+  search: (query) => electron.ipcRenderer.invoke("search", query)
 });

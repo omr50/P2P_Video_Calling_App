@@ -122,6 +122,7 @@ ipcMain.handle('logout', async (event: any) => {
 ipcMain.handle('search', async (event: any, query: string) => {
   const url = new URL("http://localhost:5000/search")
   url.searchParams.append("query", query)
+  console.log("QUery?", query)
   const res = await fetch(url)
   console.log("search request status", res.status)
   // console.log("body", res.body)
@@ -130,5 +131,6 @@ ipcMain.handle('search', async (event: any, query: string) => {
     console.log("search data: ", data)
     return data
   }
+    console.log("error res: ", res.status)
   return [] 
 })

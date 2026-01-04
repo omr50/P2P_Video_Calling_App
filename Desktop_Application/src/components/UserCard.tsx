@@ -1,10 +1,10 @@
 import React from "react";
 
 interface User {
-  id: string;
-  name: string;
-  email: string;
-  online: boolean;
+  Email: string;
+  Username: string;
+  Created_at: string;
+  Online: boolean;
 }
 
 interface UserCardProps {
@@ -12,7 +12,7 @@ interface UserCardProps {
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
-  const initial = user.name.charAt(0).toUpperCase();
+  const initial = user.Username.charAt(0).toUpperCase();
 
   return (
     <div className="flex items-center gap-4 p-3 hover:bg-gray-600 rounded-lg cursor-pointer">
@@ -25,15 +25,15 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         {/* Status Indicator */}
         <span
           className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
-            user.online ? "bg-green-500" : "bg-gray-400"
+            user.Online ? "bg-green-500" : "bg-gray-400"
           }`}
         />
       </div>
 
       {/* User Info */}
       <div className="flex flex-col">
-        <span className="font-medium text-orange-300">{user.name}</span>
-        <span className="text-sm text-blue-500">{user.email}</span>
+        <span className="font-medium text-orange-300">{user.Username}</span>
+        <span className="text-sm text-blue-500">{user.Email}</span>
       </div>
     </div>
   );

@@ -82,6 +82,7 @@ ipcMain.handle("logout", async (event) => {
 ipcMain.handle("search", async (event, query) => {
   const url = new URL("http://localhost:5000/search");
   url.searchParams.append("query", query);
+  console.log("QUery?", query);
   const res = await fetch(url);
   console.log("search request status", res.status);
   if (res.status === 200) {
@@ -89,6 +90,7 @@ ipcMain.handle("search", async (event, query) => {
     console.log("search data: ", data);
     return data;
   }
+  console.log("error res: ", res.status);
   return [];
 });
 export {

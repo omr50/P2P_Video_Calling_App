@@ -35,6 +35,6 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('logout'),
 
 
-  search: () => 
-    ipcRenderer.invoke('search'),
+  search: (query: string) => 
+    ipcRenderer.invoke('search', query),
 })

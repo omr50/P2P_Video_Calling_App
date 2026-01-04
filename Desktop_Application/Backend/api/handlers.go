@@ -15,7 +15,7 @@ type SearchedUser struct {
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("Working?")
 	query := r.URL.Query().Get("query")
 	fmt.Println("query:", query)
 
@@ -24,7 +24,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	endpoint := "http://localhost:8090/search?q=" + url.QueryEscape(query)
+	endpoint := "http://localhost:8090/user-search?query=" + url.QueryEscape(query)
 
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {

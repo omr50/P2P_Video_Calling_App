@@ -17,7 +17,7 @@ func EmailSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	partialEmail := r.URL.Query().Get("q")
+	partialEmail := r.URL.Query().Get("query")
 
 	if partialEmail == "" {
 		http.Error(w, "missing search query", http.StatusBadRequest)

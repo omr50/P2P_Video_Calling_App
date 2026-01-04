@@ -11,7 +11,7 @@ func main() {
 
 	http.HandleFunc("/credentials", Api.CredentialsHandler)
 	http.HandleFunc("/logout", Api.LogoutHandler)
-	http.HandleFunc("/serach", Api.SearchHandler)
+	http.HandleFunc("/search", Api.SearchHandler)
 
 	http.ListenAndServe(":5000", nil)
 

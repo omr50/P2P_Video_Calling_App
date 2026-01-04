@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import UserCard from "../components/UserCard";
 
@@ -10,18 +10,28 @@ const USERS = [
 
 const UserSearch: React.FC = () => {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([])
 
-  const filteredUsers = useMemo(await () => {
-    if (!query) return [];
-    let res = []
-    if (query.length >= 3) {
-      console.log("Calling?")
-      res = async window.api.search(query)
-      console.log(res)
+
+  useEffect(() => {
+    if (!query || query.length < 3) {
+        setResults([]);
+        return;
     }
-    return res.filter((user: any) =>
-      user.email.toLowerCase().includes(query.toLowerCase())
-    );
+
+    const run = async () => {
+      try {
+        console.log("Calling?:", query);
+        const res = await window.api.search(query);
+        console.log(res);
+        setResults(res);
+      } catch (err) {
+        console.error(err);
+        setResults([]);
+      }
+    };
+
+    run();
   }, [query]);
 
   return (
@@ -31,11 +41,11 @@ const UserSearch: React.FC = () => {
         <SearchBar value={query} onChange={setQuery} />
 
         <div className="border rounded-lg divide-y">
-          {filteredUsers.map((user: any) => (
+          {results.map((user: any) => (
             <UserCard key={user.id} user={user} />
           ))}
 
-          {query && filteredUsers.length === 0 && (
+          {query && results.length === 0 && (
             <div className="p-4 text-sm text-gray-500 text-center">
               No users found
             </div>
