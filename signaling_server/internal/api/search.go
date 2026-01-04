@@ -43,5 +43,9 @@ func EmailSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("Results", results)
+	if len(results) == 0 {
+		results = []UserSearchResult{}
+	}
 	json.NewEncoder(w).Encode(results)
 }

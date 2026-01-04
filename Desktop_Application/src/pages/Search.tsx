@@ -42,7 +42,7 @@ const UserSearch: React.FC = () => {
 
         <div className="border rounded-lg divide-y">
           {results.map((user: any) => (
-            <UserCard key={user.id} user={user} />
+            <UserCard key={user.Email} user={user} />
           ))}
 
           {query && results.length === 0 && (

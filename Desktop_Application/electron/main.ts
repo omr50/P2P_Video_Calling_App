@@ -132,5 +132,5 @@ ipcMain.handle('search', async (event: any, query: string) => {
     return data
   }
     console.log("error res: ", res.status)
-  return [] 
+    return [] 
 })
