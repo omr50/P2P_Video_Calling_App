@@ -69,6 +69,28 @@ ipcMain.handle("signup", async (event, credentials) => {
     };
   }
 });
+ipcMain.handle("logout", async (event) => {
+  const res = await fetch("http://localhost:5000/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  console.log("status", res.status);
+  const data = await res.json();
+  console.log("logout data: ", data);
+  return data;
+});
+ipcMain.handle("search", async (event, query) => {
+  const url = new URL("http://localhost:5000/search");
+  url.searchParams.append("query", query);
+  const res = await fetch(url);
+  console.log("search request status", res.status);
+  if (res.status === 200) {
+    const data = await res.json();
+    console.log("search data: ", data);
+    return data;
+  }
+  return [];
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

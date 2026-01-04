@@ -33,7 +33,7 @@ export default function Home() {
               <div className="m-4"></div>
               <Button onClick={()=> {navigate("/login")}} bColor="green">🌐 Start a Call </Button>
               <div className="m-4"></div>
-              <Button bColor="violet">🙋🏻‍♂️ Add Friend</Button>
+              <Button bColor="violet" onClick={()=> {navigate("/search")}}>🙋🏻‍♂️ Add Friend</Button>
             </>
               : 
             <>

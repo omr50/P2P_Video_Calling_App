@@ -33,4 +33,8 @@ contextBridge.exposeInMainWorld('api', {
 
   logout: () => 
     ipcRenderer.invoke('logout'),
+
+
+  search: () => 
+    ipcRenderer.invoke('search'),
 })

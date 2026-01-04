@@ -118,3 +118,17 @@ ipcMain.handle('logout', async (event: any) => {
   console.log("logout data: ", data)
   return data
 })
+
+ipcMain.handle('search', async (event: any, query: string) => {
+  const url = new URL("http://localhost:5000/search")
+  url.searchParams.append("query", query)
+  const res = await fetch(url)
+  console.log("search request status", res.status)
+  // console.log("body", res.body)
+  if (res.status === 200) {
+    const data = await res.json()
+    console.log("search data: ", data)
+    return data
+  }
+  return [] 
+})
