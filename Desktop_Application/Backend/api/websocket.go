@@ -15,17 +15,17 @@ var GlobalClient *Client
 
 const (
 	MsgCreateSock   MessageType = "create_socket"
-	MsgCallRequest  MessageType = "call_request"
+	MsgCallRequest  MessageType = "call_offer"
 	MsgCallAccepted MessageType = "call_accepted"
 	MsgCallDeclined MessageType = "call_declined"
 	MsgKeyExchange  MessageType = "key_exchange"
 )
 
 type Message struct {
-	Type    string
-	From    string
-	To      string
-	Payload json.RawMessage
+	Type           string
+	SenderEmail    string
+	RecipientEmail string
+	Payload        json.RawMessage
 }
 
 func NewClient(serverURL string) (*Client, error) {
@@ -44,6 +44,12 @@ func NewClient(serverURL string) (*Client, error) {
 	}, nil
 }
 
+func handleCallOffer(msg Message) {
+
+	// send http request to frontend to initiate call
+
+}
+
 func WebsockClient() {
 
 	// conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8090/ws", nil)
@@ -60,10 +66,10 @@ func WebsockClient() {
 	payloadBytes, _ := json.Marshal(payload)
 
 	msg := Message{
-		Type:    "call_offer",
-		From:    GlobalClient.email,
-		To:      "a@b",
-		Payload: payloadBytes,
+		Type:           "call_offer",
+		SenderEmail:    GlobalClient.email,
+		RecipientEmail: "a@b",
+		Payload:        payloadBytes,
 	}
 
 	// defer GlobalClient.conn.Close()
@@ -82,20 +88,34 @@ func WebsockClient() {
 			err = GlobalClient.conn.WriteMessage(websocket.TextMessage, data)
 		}
 	}()
+
 	if err != nil {
 		log.Fatal("write error:", err)
 	}
 
 	// read incoming msgs
 	for {
-		msgType, msg, err := GlobalClient.conn.ReadMessage()
+		msgType, message, err := GlobalClient.conn.ReadMessage()
 		if err != nil {
 			log.Println("read errro:", err)
 			return
 		}
 
 		if msgType == websocket.TextMessage {
-			log.Println("received:", string(msg))
+			log.Println("received:", string(message))
+			var msg Message
+			json.Unmarshal(message, &msg)
+			switch msg.Type {
+
+			case "call_offer":
+				handleCallOffer(GlobalClient.conn, msg)
+			case "call_accepted":
+				// handleAnswer(msg)
+			case "ice":
+				// handleICE(msg)
+			case "call_end":
+				// handleCallEnd(msg)
+			}
 		}
 	}
 

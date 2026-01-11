@@ -34,6 +34,14 @@ func removeConnection(email string) {
 	fmt.Println("removed client connection from map")
 }
 
+func getConnection(email string) *websocket.Conn {
+	var conn *websocket.Conn
+	connMu.Lock()
+	conn = connections[email]
+	connMu.Unlock()
+	return conn
+}
+
 var Upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -67,13 +75,33 @@ func clientPing(conn *websocket.Conn) {
 func handleCallOffer(conn *websocket.Conn, msg Message) {
 	// server finds other socket, sends call request to it
 	fmt.Println("got call offer message:", msg)
-	data, err := json.Marshal(msg)
-	if err != nil {
-		fmt.Println("error encoding message")
-	}
-	// respond to server that call is accepted
+	recipientConn := getConnection(msg.RecipientEmail)
 
-	conn.WriteMessage(websocket.TextMessage, data)
+	if recipientConn != nil {
+		// write back to client that the call is declined
+		// works in either case, no pickup or user not online
+		emptyPayload := json.RawMessage(`{}`)
+		declinedMessage := Message{
+			Type:           "call_declined",
+			SenderEmail:    msg.SenderEmail,
+			RecipientEmail: msg.RecipientEmail,
+			Payload:        emptyPayload,
+		}
+
+		jsonData, err := json.Marshal(declinedMessage)
+		if err != nil {
+			return
+		}
+		conn.WriteMessage(websocket.TextMessage, jsonData)
+	} else {
+		// just forward the message
+		data, err := json.Marshal(msg)
+
+		if err != nil {
+			return
+		}
+		recipientConn.WriteMessage(websocket.TextMessage, data)
+	}
 
 }
 
@@ -145,7 +173,7 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 
 		case "call_offer":
 			handleCallOffer(conn, msg)
-		case "answer":
+		case "call_accepted":
 			// handleAnswer(msg)
 		case "ice":
 			// handleICE(msg)
