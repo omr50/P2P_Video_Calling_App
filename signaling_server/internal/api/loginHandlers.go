@@ -62,9 +62,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&u)
 	fmt.Println("jsondata: ", u)
 
-	// user, err := Api.FetchUser(u.Email)
+	user, err := FetchUser(u.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "No user found!")
+	}
 
-	if FetchAndValidatePassword(u.Email, u.Password) {
+	if auth.ValidPassword(user.Password, u.Password) {
 		tokenString, err := auth.CreateToken(u.Email)
 
 		if err != nil {
@@ -74,7 +78,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{
-			"token": tokenString,
+			"token":    tokenString,
+			"username": user.Username,
 		})
 		fmt.Println("successfully sending token")
 		return

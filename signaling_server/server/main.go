@@ -17,5 +17,5 @@ func main() {
 	http.HandleFunc("/signup", api.SignupHandler)
 	http.Handle("/user-search", api.AuthMiddleware(http.HandlerFunc(api.EmailSearch)))
 	http.HandleFunc("/ws", sock.WebsockHandler)
-	http.ListenAndServe(":8090", nil)
+	http.ListenAndServe("localhost:8090", nil)
 }

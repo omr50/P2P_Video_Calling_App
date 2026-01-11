@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import Button from "../components/Button"
 import Button2 from "../components/Button2"
 import UserProfile from "../components/UserProfile"
+import UserSearch from "../pages/Search"
 import { useAuth } from "../context/AuthContext"
 
 export default function Home() {
@@ -16,8 +17,13 @@ export default function Home() {
 
       {/* Main content */}
       <main className="min-h-screen w-full flex items-center justify-center px-4">
+        
         <div className="w-full max-w-2xl bg-zinc-800 rounded-xl p-8 shadow-lg">
-          
+          {
+            token ?
+            <UserSearch/>  
+            : <></>
+          } 
           <h1 className="text-3xl font-bold mb-3">
             Welcome {token ? "Username_(change)" : "to DeCent Chat"}
           </h1>

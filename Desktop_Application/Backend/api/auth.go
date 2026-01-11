@@ -38,7 +38,8 @@ type User struct {
 }
 
 type TokenResponse struct {
-	Token string `json:"token"`
+	Token    string `json:"token"`
+	Username string `json:"username"`
 }
 
 func generateKeyPair() (*ecdh.PrivateKey, *ecdh.PublicKey, error) {
@@ -138,7 +139,8 @@ func CredentialsHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(resp.Body).Decode(&token)
 
 	json.NewEncoder(w).Encode(map[string]string{
-		"token": token.Token,
+		"token":    token.Token,
+		"username": token.Username,
 	})
 
 	fmt.Println("Token: ", token)

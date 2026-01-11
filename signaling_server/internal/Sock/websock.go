@@ -71,6 +71,8 @@ func handleCallOffer(conn *websocket.Conn, msg Message) {
 	if err != nil {
 		fmt.Println("error encoding message")
 	}
+	// respond to server that call is accepted
+
 	conn.WriteMessage(websocket.TextMessage, data)
 
 }
