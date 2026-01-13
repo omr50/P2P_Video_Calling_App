@@ -93,6 +93,19 @@ ipcMain.handle("search", async (event, query) => {
   console.log("error res: ", res.status);
   return [];
 });
+ipcMain.handle("call", async (event, email) => {
+  const url = new URL("http://localhost:5000/call");
+  url.searchParams.append("email", email);
+  console.log("email?", email);
+  const res = await fetch(url);
+  console.log("search request status", res.status);
+  if (res.status === 200) {
+    console.log("call request sent correctly");
+    return true;
+  }
+  console.log("error res: ", res.status);
+  return false;
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

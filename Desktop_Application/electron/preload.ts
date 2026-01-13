@@ -37,4 +37,7 @@ contextBridge.exposeInMainWorld('api', {
 
   search: (query: string) => 
     ipcRenderer.invoke('search', query),
+
+  call: (email: string) => 
+    ipcRenderer.invoke('call', email),
 })

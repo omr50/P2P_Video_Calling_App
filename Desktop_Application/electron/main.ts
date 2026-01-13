@@ -134,3 +134,19 @@ ipcMain.handle('search', async (event: any, query: string) => {
     console.log("error res: ", res.status)
     return [] 
 })
+
+
+ipcMain.handle('call', async (event: any, email: string) => {
+  const url = new URL("http://localhost:5000/call")
+  url.searchParams.append("email", email)
+  console.log("email?", email)
+  const res = await fetch(url)
+  console.log("search request status", res.status)
+  // console.log("body", res.body)
+  if (res.status === 200) {
+    console.log("call request sent correctly")
+    return true 
+  }
+    console.log("error res: ", res.status)
+    return false 
+})
