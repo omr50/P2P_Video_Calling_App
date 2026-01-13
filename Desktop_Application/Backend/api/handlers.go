@@ -7,6 +7,8 @@ import (
 	"net/url"
 )
 
+var SSEChannel chan string
+
 type SearchedUser struct {
 	Email      string
 	Username   string
@@ -55,5 +57,21 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
+
+}
+
+func SSEHandler(w http.ResponseWriter, r *http.Request) {
+	SSEChannel = make(chan string)
+	flusher := w.(http.Flusher)
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+
+	for {
+		// blocks here until channel has data
+		msg := <-SSEChannel
+		fmt.Fprintf(w, "%s\n\n", msg)
+		flusher.Flush()
+	}
 
 }

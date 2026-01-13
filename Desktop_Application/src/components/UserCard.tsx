@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "./Button";
 
 interface User {
   Email: string;
@@ -34,6 +35,8 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
       <div className="flex flex-col">
         <span className="font-medium text-orange-300">{user.Username}</span>
         <span className="text-sm text-blue-500">{user.Email}</span>
+        <Button className="text-sm text-blue-500" onClick={()=> {window.api.callUser(user.Email)}}>📞 Call</Button>
+
       </div>
     </div>
   );

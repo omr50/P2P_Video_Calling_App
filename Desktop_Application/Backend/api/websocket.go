@@ -45,9 +45,8 @@ func NewClient(serverURL string) (*Client, error) {
 }
 
 func handleCallOffer(msg Message) {
-
-	// send http request to frontend to initiate call
-
+	// send caller through channel
+	SSEChannel <- msg.SenderEmail
 }
 
 func WebsockClient() {
@@ -108,7 +107,7 @@ func WebsockClient() {
 			switch msg.Type {
 
 			case "call_offer":
-				handleCallOffer(GlobalClient.conn, msg)
+				handleCallOffer(msg)
 			case "call_accepted":
 				// handleAnswer(msg)
 			case "ice":

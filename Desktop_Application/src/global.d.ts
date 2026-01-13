@@ -7,6 +7,7 @@ declare global {
       signup: (data: { email: string; username: string, password: string }) => Promise<any>
       logout: () => Promise<any>
       search: (query: string) => Promise<any>
+      callUser: (email: string) => Promise<any>
     }
   }
 }
