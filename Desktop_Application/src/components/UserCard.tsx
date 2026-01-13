@@ -37,7 +37,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         <span className="text-sm text-blue-500">{user.Email}</span>
         {
           user.Online ? 
-          <Button className="text-sm text-blue-500" onClick={()=> {window.api.call(user.Email)}}>📞 Call</Button>
+          <Button className="text-sm text-blue-500" onClick={()=> {console.log("initiate call button click"); window.api.call(user.Email)}}>📞 Call</Button>
           : <></>
         }
 

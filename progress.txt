@@ -33,4 +33,15 @@ Implement:
     - easy way for the server to fetch clients when requests come in
     - also when calls close they can inform the other party in call that its over if the other crashes
       and doesn't send the end call message 
+
+- calls
+    - when call initiated the server should put a timer on how long before sending call decline
+    - frontend also has a timer to get rid of the screen if the call isn't accepted in that long
+        - maybe we don't need the server notifying if the timer runs out becuase the frontend should close its window before that
+        - only when timer didn't go to 0 then we notify if the other user declines before it runs out
+
+- SSE 
+    - server sent events should authenticate the JWT as well on first initiation?
+
+- Cost of SSE & WS
 Complete:

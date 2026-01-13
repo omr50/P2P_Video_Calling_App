@@ -40,6 +40,7 @@ type User struct {
 type TokenResponse struct {
 	Token    string `json:"token"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 func generateKeyPair() (*ecdh.PrivateKey, *ecdh.PublicKey, error) {
@@ -141,10 +142,12 @@ func CredentialsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"token":    token.Token,
 		"username": token.Username,
+		"email":    token.Email,
 	})
 
 	fmt.Println("Token: ", token)
 	UserJWT = token.Token
+	GlobalUserEmail = token.Email
 
 	go WebsockClient()
 }

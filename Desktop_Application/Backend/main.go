@@ -13,6 +13,7 @@ func main() {
 	http.HandleFunc("/logout", Api.LogoutHandler)
 	http.HandleFunc("/search", Api.SearchHandler)
 	http.HandleFunc("/sse", Api.SSEHandler)
+	http.HandleFunc("/call", Api.CallHandler)
 
 	http.ListenAndServe("localhost:5000", nil)
 

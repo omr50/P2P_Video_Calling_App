@@ -2,6 +2,7 @@ package Api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 type MessageType string
 
+var GlobalUserEmail string
 var GlobalClient *Client
 
 const (
@@ -40,12 +42,14 @@ func NewClient(serverURL string) (*Client, error) {
 	}
 
 	return &Client{
-		conn: conn,
+		email: GlobalUserEmail,
+		conn:  conn,
 	}, nil
 }
 
 func handleCallOffer(msg Message) {
 	// send caller through channel
+	fmt.Println("handle call offer message", msg)
 	SSEChannel <- msg.SenderEmail
 }
 
@@ -57,36 +61,6 @@ func WebsockClient() {
 	if err != nil {
 		log.Fatal("dial error:", err)
 	}
-
-	payload := map[string]interface{}{
-		"text": "Hello World",
-	}
-
-	payloadBytes, _ := json.Marshal(payload)
-
-	msg := Message{
-		Type:           "call_offer",
-		SenderEmail:    GlobalClient.email,
-		RecipientEmail: "a@b",
-		Payload:        payloadBytes,
-	}
-
-	// defer GlobalClient.conn.Close()
-
-	data, err := json.Marshal(msg)
-
-	if err != nil {
-		log.Fatal("Marshal error:", err)
-	}
-
-	go func() {
-		ticker := time.NewTicker(3 * time.Second)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			err = GlobalClient.conn.WriteMessage(websocket.TextMessage, data)
-		}
-	}()
 
 	if err != nil {
 		log.Fatal("write error:", err)

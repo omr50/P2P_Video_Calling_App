@@ -78,6 +78,15 @@ func handleCallOffer(conn *websocket.Conn, msg Message) {
 	recipientConn := getConnection(msg.RecipientEmail)
 
 	if recipientConn != nil {
+		// just forward the message
+		data, err := json.Marshal(msg)
+
+		if err != nil {
+			return
+		}
+		recipientConn.WriteMessage(websocket.TextMessage, data)
+
+	} else {
 		// write back to client that the call is declined
 		// works in either case, no pickup or user not online
 		emptyPayload := json.RawMessage(`{}`)
@@ -93,14 +102,6 @@ func handleCallOffer(conn *websocket.Conn, msg Message) {
 			return
 		}
 		conn.WriteMessage(websocket.TextMessage, jsonData)
-	} else {
-		// just forward the message
-		data, err := json.Marshal(msg)
-
-		if err != nil {
-			return
-		}
-		recipientConn.WriteMessage(websocket.TextMessage, data)
 	}
 
 }

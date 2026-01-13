@@ -79,6 +79,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{
 			"token":    tokenString,
 			"username": user.Username,
+			"email":    user.Email,
 		})
 		fmt.Println("successfully sending token")
 		return

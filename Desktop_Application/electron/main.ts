@@ -26,7 +26,6 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
-let eventSource: EventSource
 
 function createWindow() {
   win = new BrowserWindow({
@@ -48,11 +47,6 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 
-  console.log("create the sse listener")
-  eventSource = new EventSource("http://localhost:5000/sse")
-  eventSource.onmessage = (e) => {
-    console.log(e.data)
-  }
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

@@ -5,11 +5,13 @@ import Signup from "./pages/Signup.jsx"
 import Home from "./pages/Home.jsx"
 import SearchBar from './components/SearchBar.js'
 import UserSearch from './pages/Search.js'
+import IncomingCallModal from './components/IncomingCallModal.js'
 
 function App() {
 
   return  (
     <BrowserRouter>
+      <IncomingCallModal/>
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/login" element={<Login />} />

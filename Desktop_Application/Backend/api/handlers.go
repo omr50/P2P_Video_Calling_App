@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var SSEChannel chan string
+var SSEChannel = make(chan string)
 
 type SearchedUser struct {
 	Email      string
@@ -31,6 +31,7 @@ func CallHandler(w http.ResponseWriter, r *http.Request) {
 
 	JsonPayload := json.RawMessage(`{}`)
 	message := Message{Type: string(MsgCallRequest), SenderEmail: GlobalClient.email, RecipientEmail: email, Payload: JsonPayload}
+	fmt.Println("Call handler message", message)
 
 	jsonMsg, err := json.Marshal(message)
 
@@ -89,16 +90,20 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SSEHandler(w http.ResponseWriter, r *http.Request) {
-	SSEChannel = make(chan string)
 	flusher := w.(http.Flusher)
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 
+	// CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	for {
 		// blocks here until channel has data
 		msg := <-SSEChannel
-		fmt.Fprintf(w, "%s\n\n", msg)
+		fmt.Println("Call happening", msg)
+		fmt.Fprintf(w, "data: %s\n\n", msg)
 		flusher.Flush()
 	}
 
