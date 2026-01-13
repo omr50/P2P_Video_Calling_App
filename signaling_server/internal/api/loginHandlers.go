@@ -52,7 +52,6 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 200 succeeded
 	w.WriteHeader(http.StatusOK)
-
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
