@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/gorilla/websocket"
 )
 
 var SSEChannel chan string
@@ -14,6 +16,32 @@ type SearchedUser struct {
 	Username   string
 	Created_at string
 	Online     bool
+}
+
+func CallHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Call handler!")
+	email := r.URL.Query().Get("email")
+
+	fmt.Println("call handler query: ", email)
+
+	if email == "" {
+		http.Error(w, "query email is empty", http.StatusBadRequest)
+		return
+	}
+
+	JsonPayload := json.RawMessage(`{}`)
+	message := Message{Type: string(MsgCallRequest), SenderEmail: GlobalClient.email, RecipientEmail: email, Payload: JsonPayload}
+
+	jsonMsg, err := json.Marshal(message)
+
+	if err != nil {
+		http.Error(w, "query email is empty", http.StatusBadRequest)
+		return
+	}
+
+	GlobalClient.conn.WriteMessage(websocket.TextMessage, jsonMsg)
+	fmt.Println("Sent initiate call websocket message successfully")
+	w.WriteHeader(http.StatusOK)
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
