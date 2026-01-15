@@ -93,22 +93,37 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SSEHandler(w http.ResponseWriter, r *http.Request) {
-	flusher := w.(http.Flusher)
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+		return
+	}
+
+	origin := r.Header.Get("Origin")
+
+	allowed := map[string]bool{
+		"http://localhost:5173": true,
+		"http://localhost:5174": true,
+	}
+
+	if allowed[origin] {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+	}
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
 
-	// CORS headers
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	ctx := r.Context()
 
 	for {
-		// blocks here until channel has data
-		msg := <-SSEChannel
-		fmt.Println("Call happening", msg)
-		fmt.Fprintf(w, "data: %s\n\n", msg)
-		flusher.Flush()
+		select {
+		case msg := <-SSEChannel:
+			fmt.Fprintf(w, "data: %s\n\n", msg)
+			flusher.Flush()
+		case <-ctx.Done():
+			return
+		}
 	}
-
 }

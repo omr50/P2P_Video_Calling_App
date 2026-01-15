@@ -15,6 +15,6 @@ func main() {
 	http.HandleFunc("/sse", Api.SSEHandler)
 	http.HandleFunc("/call", Api.CallHandler)
 
-	http.ListenAndServe("localhost:5001", nil)
+	http.ListenAndServe("localhost:5000", nil)
 
 }
