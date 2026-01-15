@@ -20,10 +20,12 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 useEffect(() => {
   console.log("SSE effect mount")
 
-  const es = new EventSource("http://localhost:5000/sse")
+  const es = new EventSource(import.meta.env.VITE_BACKEND_URL + "/sse")
 
   es.onmessage = (e) => {
     console.log("SSE DATA:", e.data)
+    setIncomingCall({
+      callerEmail: e.data})
   }
 
   return () => {

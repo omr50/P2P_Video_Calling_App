@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 createRequire(import.meta.url);
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
+const BACKEND_URL = "http://localhost:5000";
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
@@ -40,7 +41,7 @@ app.on("activate", () => {
 app.whenReady().then(createWindow);
 ipcMain.handle("login", async (event, credentials) => {
   console.log("login request: ", credentials);
-  const res = await fetch("http://localhost:5000/credentials", {
+  const res = await fetch(BACKEND_URL + "/credentials", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials)
@@ -53,7 +54,7 @@ ipcMain.handle("login", async (event, credentials) => {
 ipcMain.handle("signup", async (event, credentials) => {
   console.log("signup request: ", credentials);
   try {
-    const res = await fetch("http://localhost:8090/signup", {
+    const res = await fetch(BACKEND_URL + "/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials)
@@ -70,7 +71,7 @@ ipcMain.handle("signup", async (event, credentials) => {
   }
 });
 ipcMain.handle("logout", async (event) => {
-  const res = await fetch("http://localhost:5000/logout", {
+  const res = await fetch(BACKEND_URL + "/logout", {
     method: "POST",
     headers: { "Content-Type": "application/json" }
   });
@@ -80,7 +81,8 @@ ipcMain.handle("logout", async (event) => {
   return data;
 });
 ipcMain.handle("search", async (event, query) => {
-  const url = new URL("http://localhost:5000/search");
+  console.log("THE backend URL", "http://localhost:5000");
+  const url = new URL(BACKEND_URL + "/search");
   url.searchParams.append("query", query);
   console.log("QUery?", query);
   const res = await fetch(url);
@@ -94,7 +96,7 @@ ipcMain.handle("search", async (event, query) => {
   return [];
 });
 ipcMain.handle("call", async (event, email) => {
-  const url = new URL("http://localhost:5000/call");
+  const url = new URL(BACKEND_URL + "/call");
   url.searchParams.append("email", email);
   console.log("email?", email);
   const res = await fetch(url);

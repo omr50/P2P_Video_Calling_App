@@ -40,7 +40,10 @@ func CallHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	GlobalClient.mu.Lock()
 	GlobalClient.conn.WriteMessage(websocket.TextMessage, jsonMsg)
+	GlobalClient.mu.Unlock()
+
 	fmt.Println("Sent initiate call websocket message successfully")
 	w.WriteHeader(http.StatusOK)
 }
@@ -97,6 +100,7 @@ func SSEHandler(w http.ResponseWriter, r *http.Request) {
 
 	// CORS headers
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	for {

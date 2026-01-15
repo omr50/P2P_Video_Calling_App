@@ -97,11 +97,13 @@ func WebsockClient() {
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
+	GlobalClient.mu.Lock()
 	err := GlobalClient.conn.WriteMessage(
 		websocket.CloseMessage,
 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, "client exit"),
 	)
 
+	GlobalClient.mu.Unlock()
 	if err != nil {
 		log.Println("Write close error: ", err)
 	}

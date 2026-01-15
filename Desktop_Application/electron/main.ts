@@ -6,6 +6,7 @@ import { EventSource } from 'eventsource'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
 // The built directory structure
 //
@@ -72,7 +73,7 @@ app.whenReady().then(createWindow)
 
 ipcMain.handle('login', async (event: any, credentials: any) => {
   console.log("login request: ", credentials)
-  const res = await fetch("http://localhost:5000/credentials", {
+  const res = await fetch(BACKEND_URL + "/credentials", {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
@@ -88,7 +89,7 @@ ipcMain.handle('signup', async (event: any, credentials: any) => {
   console.log("signup request: ", credentials)
 
   try {
-    const res = await fetch("http://localhost:8090/signup", {
+    const res = await fetch(BACKEND_URL + "/signup", {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
@@ -111,7 +112,7 @@ ipcMain.handle('signup', async (event: any, credentials: any) => {
 })
 
 ipcMain.handle('logout', async (event: any) => {
-  const res = await fetch("http://localhost:5000/logout", {
+  const res = await fetch(BACKEND_URL + "/logout", {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
   })
@@ -123,7 +124,8 @@ ipcMain.handle('logout', async (event: any) => {
 })
 
 ipcMain.handle('search', async (event: any, query: string) => {
-  const url = new URL("http://localhost:5000/search")
+  console.log("THE backend URL", import.meta.env.VITE_BACKEND_URL)
+  const url = new URL(BACKEND_URL + "/search")
   url.searchParams.append("query", query)
   console.log("QUery?", query)
   const res = await fetch(url)
@@ -140,7 +142,7 @@ ipcMain.handle('search', async (event: any, query: string) => {
 
 
 ipcMain.handle('call', async (event: any, email: string) => {
-  const url = new URL("http://localhost:5000/call")
+  const url = new URL(BACKEND_URL + "/call")
   url.searchParams.append("email", email)
   console.log("email?", email)
   const res = await fetch(url)

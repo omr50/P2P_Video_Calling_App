@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -21,6 +22,7 @@ type Client struct {
 	email    string
 	username string
 	conn     *websocket.Conn
+	mu       sync.Mutex
 	crypto   *CryptoSession
 	isInCall bool
 }
