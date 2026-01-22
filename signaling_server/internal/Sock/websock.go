@@ -106,6 +106,57 @@ func handleCallOffer(conn *websocket.Conn, msg Message) {
 
 }
 
+func handleCallDeclined(conn *websocket.Conn, msg Message) {
+	// server finds other socket, sends call request to it
+	fmt.Println("got call declined message:", msg)
+	recipientConn := getConnection(msg.RecipientEmail)
+
+	if recipientConn != nil {
+		// just forward the message
+		data, err := json.Marshal(msg)
+
+		if err != nil {
+			return
+		}
+		recipientConn.WriteMessage(websocket.TextMessage, data)
+
+	}
+}
+
+func handleCallAccepted(conn *websocket.Conn, msg Message) {
+	// server finds other socket, sends call request to it
+	fmt.Println("got call accepted message:", msg)
+	recipientConn := getConnection(msg.RecipientEmail)
+
+	if recipientConn != nil {
+		// just forward the message
+		data, err := json.Marshal(msg)
+
+		if err != nil {
+			return
+		}
+		recipientConn.WriteMessage(websocket.TextMessage, data)
+
+	} else {
+		// write back to client that the call is declined
+		// works in either case, no pickup or user not online
+		emptyPayload := json.RawMessage(`{}`)
+		declinedMessage := Message{
+			Type:           "call_err",
+			SenderEmail:    msg.SenderEmail,
+			RecipientEmail: msg.RecipientEmail,
+			Payload:        emptyPayload,
+		}
+
+		jsonData, err := json.Marshal(declinedMessage)
+		if err != nil {
+			return
+		}
+		conn.WriteMessage(websocket.TextMessage, jsonData)
+	}
+
+}
+
 func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 	authValue := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authValue, "Bearer ")
@@ -176,6 +227,8 @@ func WebsockHandler(w http.ResponseWriter, r *http.Request) {
 			handleCallOffer(conn, msg)
 		case "call_accepted":
 			// handleAnswer(msg)
+		case "call_declined":
+			handleCallDeclined(conn, msg)
 		case "ice":
 			// handleICE(msg)
 		case "call_end":

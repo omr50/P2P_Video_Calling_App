@@ -42,6 +42,7 @@ func MarkUserOnline(ctx context.Context, rdb *redis.Client, email string) error 
 		return err
 	}
 
+	// set expiration to keep cehcking, WS pings will keep it going
 	err = rdb.Expire(ctx, key, 120*time.Second).Err()
 	if err != nil {
 		return err
